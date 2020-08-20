@@ -12,7 +12,10 @@ const gameSchema = new mongoose.Schema({
     type: Array,
     required: true,
   },
-  winner: String,
+  winner: {
+    type: String,
+    default: null,
+  },
 });
 
 const Game = mongoose.model("Game", gameSchema);

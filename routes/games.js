@@ -56,6 +56,7 @@ router.put("/:id", async (req, res) => {
 
   game.name = req.body.name;
   game.players = req.body.players;
+  game.winner = req.body.winner || null;
 
   try {
     const result = await game.save();

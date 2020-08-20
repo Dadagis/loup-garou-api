@@ -30,7 +30,7 @@ router.post("/", async (req, res) => {
 
   try {
     const result = await game.save();
-    console.log(result);
+    res.send(result);
   } catch (error) {
     console.log(error.message);
   }

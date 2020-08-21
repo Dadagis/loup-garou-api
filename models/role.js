@@ -1,21 +1,24 @@
 const mongoose = require("mongoose");
 const Joi = require("joi");
 
-const roleSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: true,
-    unique: true,
+const roleSchema = new mongoose.Schema(
+  {
+    name: {
+      type: String,
+      required: true,
+      unique: true,
+    },
+    description: {
+      type: String,
+      required: true,
+    },
+    ability: {
+      type: String,
+      required: true,
+    },
   },
-  description: {
-    type: String,
-    required: true,
-  },
-  ability: {
-    type: String,
-    required: true,
-  },
-});
+  { timestamps: true }
+);
 
 const Role = mongoose.model("Role", roleSchema);
 

@@ -11,7 +11,6 @@ const gameSchema = new mongoose.Schema(
     },
     players: {
       type: Array,
-      required: true,
     },
     winner: {
       type: String,
@@ -26,7 +25,7 @@ const Game = mongoose.model("Game", gameSchema);
 const validateGame = (game) => {
   const schema = Joi.object({
     name: Joi.string().min(5).max(50).required(),
-    players: Joi.array().required(),
+    players: Joi.array(),
     winner: Joi.string(),
   });
   return schema.validate(game);

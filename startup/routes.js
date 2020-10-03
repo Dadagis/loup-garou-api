@@ -4,6 +4,7 @@ const games = require("../routes/games");
 const users = require("../routes/users");
 const roles = require("../routes/roles");
 const auth = require("../routes/auth");
+const error = require('../middlewares/error');
 
 module.exports = function (app) {
   app.use(express.json());
@@ -12,4 +13,5 @@ module.exports = function (app) {
   app.use("/api/users", users);
   app.use("/api/roles", roles);
   app.use("/api/auth", auth);
+  app.use(error);
 };

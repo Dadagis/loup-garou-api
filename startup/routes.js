@@ -3,6 +3,7 @@ const home = require("../routes/home");
 const games = require("../routes/games");
 const users = require("../routes/users");
 const auth = require("../routes/auth");
+const error = require('../middlewares/error');
 
 module.exports = function (app) {
   app.use(express.json());
@@ -10,4 +11,5 @@ module.exports = function (app) {
   app.use("/api/games", games);
   app.use("/api/users", users);
   app.use("/api/auth", auth);
+  app.use(error);
 };

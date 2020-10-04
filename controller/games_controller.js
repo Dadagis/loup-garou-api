@@ -2,6 +2,9 @@ const { Game, validateGame } = require("../models/game");
 
 module.exports = {
   findById: async (req, res) => {
+    if (req.params.id.length != 24) {
+      return res.status(404).send("The game with the given ID was not found");
+    }
     const game = await Game.findById(req.params.id);
     if (!game) {
       res.status(404).send("The game with the given ID was not found !");
@@ -28,7 +31,6 @@ module.exports = {
 
   create: async (req, res) => {
     const { error } = validateGame(req.body);
-    
 
     if (error) {
       res
@@ -42,7 +44,7 @@ module.exports = {
     const game = new Game({
       name: req.body.name,
       playersNumber: req.body.playersNumber,
-      players: req.body.players
+      players: req.body.players,
     });
 
     try {

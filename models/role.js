@@ -28,6 +28,10 @@ const roleSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
+    team: {
+      type: String,
+      required: true,
+    }
   },
   { timestamps: true }
 );
@@ -42,6 +46,7 @@ const validateRole = (role) => {
     phrase: Joi.string().required(),
     conditionalPhrase: Joi.string(),
     gamePhase: Joi.number().required(),
+    team: Joi.string.required()
   });
   return schema.validate(role);
 };

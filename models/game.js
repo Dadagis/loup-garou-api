@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 const Joi = require("joi");
-const { Player } = require("../models/player");
+const { Player, addRole } = require("../models/player");
 var getRandomInt = require("../utils").getRandomInt;
 
 const gameSchema = new mongoose.Schema(
@@ -49,18 +49,26 @@ const validateGame = (game) => {
   return schema.validate(game);
 };
 
-const validatePlayerId = (playerId) => {
-  const schema = Joi.object({
-    playerId: Joi.string().min(24).max(24)
-  });
-  return schema.validate(playerId);
-}
-
 const attibuteRoles = async (game) => {
-  const players = await Player.find( {gameId : req.params.gameId} ).exec();
-  let randomRoleInt = getRandomInt(game.rolesId.count);
-  game.players.forEach(player => {
-
+  //Initialise le tableau des roles attribués
+  let attributedRoles = [];
+  games.rolesId.forEach(() => {
+    attributedRoles.push(0);
+  });
+  //attribution des roles à tous les joueurs
+  game.playersId.forEach(playerId => {
+    let roleAttribution = false;
+    const roleCount = game.rolesId.count;
+    //Tant qu'un rôle n'a pas été attribué au joueur
+    while (!roleAttribution) {
+      let randomRoleInt = getRandomInt(roleCount);
+      //Si le rôle n'a pas été attribué
+      if (!attributedRoles[randomRoleInt]) {
+        attributedRoles[randomRoleInt] = true;
+        addRole(playerId, games.rolesId[randomRoleInt]);
+        roleAttribution = true;
+      }
+    }
   });
 }
 
@@ -70,3 +78,4 @@ function getRandomInt(max) {
 
 exports.Game = Game;
 exports.validateGame = validateGame;
+exports.attibuteRoles = attibuteRoles;

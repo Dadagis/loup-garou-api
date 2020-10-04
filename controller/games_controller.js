@@ -1,4 +1,4 @@
-const { Game, validateGame } = require("../models/game");
+const { Game, validateGame, attibuteRoles } = require("../models/game");
 const { Player } = require("../models/player");
 
 module.exports = {
@@ -122,11 +122,14 @@ module.exports = {
 
 /**
  * Join the game
+ * 
  */
   joinGame: async (req, res) => {
+
     const game = await Game.findById(req.params.id);
+    console.log(game);
     if (!game) {
-      res.status(404).send("The game with the given ID was not found");
+      res.status(404).send("La partie n'a pas été trouvé.");
       return;
     }
 
@@ -137,12 +140,54 @@ module.exports = {
 
     try {
       const playerResult = await player.save();
-      game.playersId.push(playerResult._id);
+      alreadyInGame = false;
+      game.playersId.forEach(playerId => {
+        if(playerId === playerResult._id){
+          alreadyInGame =true;
+        }
+      });
+      if(!alreadyInGame){
+        game.playersId.push(playerResult._id);
+      }
       const gameResult = await game.save();
       res.send(gameResult);
-      
     } catch (gameError) {
       console.log(gameError.message);
     }
+
+  },
+
+
+  startGame: async (req, res) => {
+    if (req.params.id.length != 24) {
+      return res.status(404).send("La partie demandée n'a pas été trouvée.");
+    }
+    const game = await Game.findById(req.params.id);
+    const players = await Player.find( {gameId : req.params.id} ).exec();
+    if (!game) {
+      res.status(404).send("La partie demandée n'a pas été trouvée.");
+    }
+    else if (!players) {
+      res.status(404).send("Les joueurs de la partie demandée n'ont pas été trouvés.");
+    }
+    else {
+      try {
+        if (game.hoteId === req.body.userId) {
+          let ready = true;
+          for (let index = 0; index < players.length; index++) {
+            if(!players[index].ready) {
+              ready = false;
+              break;
+            }
+          }
+          if(ready){
+            attibuteRoles(game);
+          }
+        }
+      } catch (error) {
+        console.log(error.message);
+      }
+    }
+    
   }
 };

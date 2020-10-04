@@ -6,5 +6,6 @@ const router = express.Router();
 router.get("/:id", auth, Game.findById);
 router.post("/", auth, Game.create);
 router.put("/:id", auth, Game.update);
+router.put("/:id/players", auth, Game.getPlayersById);
 
 module.exports = router;

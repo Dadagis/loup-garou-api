@@ -16,6 +16,18 @@ const roleSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    phrase: {
+      type: String,
+      required: true,
+    },
+    conditionalPhrase: {
+      type: String,
+      required: false,
+    },
+    gamePhase: {
+      type: Number,
+      required: true,
+    },
   },
   { timestamps: true }
 );
@@ -27,6 +39,9 @@ const validateRole = (role) => {
     name: Joi.string().required(),
     description: Joi.string().required(),
     ability: Joi.string().required(),
+    phrase: Joi.string().required(),
+    conditionalPhrase: Joi.string(),
+    gamePhase: Joi.number().required(),
   });
   return schema.validate(role);
 };

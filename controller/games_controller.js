@@ -13,9 +13,22 @@ module.exports = {
       }
     }
   },
+  getPlayersById: async (req, res) => {
+    const game = await Game.findById(req.params.id);
+    if (!game) {
+      res.status(404).send("The game with the given ID was not found !");
+    } else {
+      try {
+        res.send(game.players);
+      } catch (error) {
+        console.log(error.message);
+      }
+    }
+  },
 
   create: async (req, res) => {
     const { error } = validateGame(req.body);
+    
 
     if (error) {
       res
@@ -28,7 +41,8 @@ module.exports = {
 
     const game = new Game({
       name: req.body.name,
-      players: req.body.players,
+      playersNumber: req.body.playersNumber,
+      players: req.body.players
     });
 
     try {
@@ -45,7 +59,6 @@ module.exports = {
       res.status(404).send("The game with the given ID was not found");
       return;
     }
-
     const { error } = validateGame(req.body);
 
     if (error) {
@@ -58,7 +71,9 @@ module.exports = {
     }
 
     game.name = req.body.name;
+    game.playersNumber = req.body.playersNumber;
     game.players = req.body.players;
+    game.rolesId = req.body.rolesId;
     game.winner = req.body.winner || null;
 
     try {

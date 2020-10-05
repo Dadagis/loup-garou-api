@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 const Joi = require("joi");
-const { Player, addRole } = require("../models/player");
+const { addRole } = require("../models/player");
 var getRandomInt = require("../utils").getRandomInt;
 
 const gameSchema = new mongoose.Schema(
@@ -14,6 +14,9 @@ const gameSchema = new mongoose.Schema(
     playersNumber: {
       type: Number,
       required: true
+    },
+    ready: {
+      type: Boolean,
     },
     hoteId: {
       type: String,
@@ -29,7 +32,6 @@ const gameSchema = new mongoose.Schema(
     },
     winner: {
       type: String,
-      default: null,
     },
   },
   { timestamps: true }
@@ -42,6 +44,7 @@ const validateGame = (game) => {
     name: Joi.string().min(5).max(50).required(),
     playersNumber: Joi.number().required(),
     hoteId: Joi.string().min(24).max(24),
+    ready: Joi.bool(),
     playersId: Joi.array(),
     rolesId: Joi.array(),
     winner: Joi.string(),
@@ -70,10 +73,9 @@ const attibuteRoles = async (game) => {
       }
     }
   });
-}
+  const executeGame = async (game) => {
 
-function getRandomInt(max) {
-  return Math.floor(Math.random() * Math.floor(max));
+  }
 }
 
 exports.Game = Game;

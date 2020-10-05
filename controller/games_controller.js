@@ -1,5 +1,6 @@
 const { Game, validateGame, attibuteRoles } = require("../models/game");
 const { Player } = require("../models/player");
+const { User } = require("../models/user");
 
 module.exports = {
   /**
@@ -9,8 +10,8 @@ module.exports = {
     if (req.params.id.length != 24) {
       return res.status(404).send("La partie demandée n'a pas été trouvée.");
     }
-    const game = await Game.findById(req.params.id);
-    const players = await Player.find( {gameId : req.params.id} ).exec();
+    let game = await Game.findById(req.params.id);
+    let players = await Player.find( {gameId : req.params.id} ).exec();
     if (!game) {
       res.status(404).send("La partie demandée n'a pas été trouvée.");
     }
@@ -19,7 +20,17 @@ module.exports = {
     }
     else {
       try {
-        game.players = players;
+        game = game.toObject();
+        let completePlayers = [];
+        for (let index = 0; index < players.length; index++) {
+          const player = players[index];
+          let user = await User.findById(player.userId);
+          user = user.toObject();
+          let completePlayer = player.toObject();
+          completePlayer.user = user;
+          completePlayers.push(completePlayer);
+        }
+        game.players = completePlayers;
         res.send(game);
       } catch (error) {
         console.log(error.message);
@@ -47,7 +58,6 @@ module.exports = {
  * Create a game
  */
   create: async (req, res) => {
-    console.log(req.body);
     const { error } = validateGame(req.body);
 
     if (error) {
@@ -66,14 +76,13 @@ module.exports = {
 
     try {
       const gameResult = await game.save();
-      console.log("gameResult",gameResult);
       const hote = new Player({
         userId: req.body.hoteId,
         gameId: gameResult._id
       })
       try {
         const hoteResult = await hote.save();
-        game.playersId.push(hoteResult._id);
+        game.playersId.push(String(hoteResult._id));
         game.hoteId = hoteResult._id;
         const gameResult = await game.save();
         res.send(gameResult);
@@ -126,35 +135,38 @@ module.exports = {
  */
   joinGame: async (req, res) => {
 
-    const game = await Game.findById(req.params.id);
-    console.log(game);
+    let game = await Game.findById(req.params.id);
+    let players = await Player.find( {gameId : req.params.id} ).exec();
     if (!game) {
       res.status(404).send("La partie n'a pas été trouvé.");
       return;
     }
-
-    const player = new Player({
-      userId: req.body.userId,
-      gameId: req.params.id
-    });
-
-    try {
-      const playerResult = await player.save();
-      alreadyInGame = false;
-      game.playersId.forEach(playerId => {
-        if(playerId === playerResult._id){
-          alreadyInGame =true;
-        }
-      });
-      if(!alreadyInGame){
-        game.playersId.push(playerResult._id);
-      }
-      const gameResult = await game.save();
-      res.send(gameResult);
-    } catch (gameError) {
-      console.log(gameError.message);
+    else if (!players) {
+      res.status(404).send("Les joueurs de la partie demandée n'ont pas été trouvés.");
     }
-
+    else {
+      const currentPlayer = new Player({
+        userId: req.body.userId,
+        gameId: req.params.id
+      });
+      try {
+        alreadyInGame = false;
+        players.forEach(player => {
+          if(player.userId === req.body.userId){
+            alreadyInGame =true;
+            console.log("alreadyInGame")
+          }
+        });
+        if(!alreadyInGame){
+          const playerResult = await currentPlayer.save();
+          game.playersId.push(String(playerResult._id));
+          const gameResult = await game.save();
+          res.send(gameResult);
+        }
+      } catch (gameError) {
+        console.log(gameError.message);
+      }
+    }
   },
 
 
